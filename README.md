@@ -1,4 +1,5 @@
 # DragText: Rethinking Text Embedding in Point-based Image Editing
+#### Early Accepted @ WACV 2025 
 We will release the code soon. Stay tuned!
 
 [[Project Page]](https://micv-yonsei.github.io/dragtext2025/) [[arXiv]](https://arxiv.org/abs/2407.17843)
@@ -6,7 +7,7 @@ We will release the code soon. Stay tuned!
 
 ![image](https://github.com/user-attachments/assets/4a59c38f-ec85-47e7-b855-fda63a2689a2)
 > ##### **DragText: Rethinking Text Embedding in Point-based Image Editing**
-> arXiv preprint  
+> IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) 2025
 > Gayoon Choi, Taejin Jeong, Sujung Hong, Jaehoon Joo, Seong Jae Hwang  
 > Yonsei University
 ### Abstract
