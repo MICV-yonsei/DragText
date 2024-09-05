@@ -47,8 +47,8 @@
 <br> 
 
 ## ✔️ TODO  
-- [ ] Release inference code and model
-- [ ] Release Gradio demo
+- [x] Release inference code and model
+- [x] Release Gradio demo
 - [ ] Open in Colab
 - [ ] Enable embedding controll in User Interface
 
@@ -91,6 +91,14 @@ cd ./GoodDrag
 conda env create -f environment.yaml
 conda activate GoodDrag
 ```
+
+### Stable Diffusion 1.5
+To replace `runawayml/stable-diffusion-1.5`, we are currently exploring alternative options. One such option, `benjamin-paine/stable-diffusion-v1-5`, requires accepting the terms and conditions. To proceed, you need to log in to HuggingFace and agree to the terms. And run the following command in your terminal:
+```bash
+huggingface-cli login 
+```
+
+See more information about [benjamin-paine/stable-diffusion-v1-5](https://huggingface.co/benjamin-paine/stable-diffusion-v1-5) and [HuggingFace Gated models](https://huggingface.co/docs/hub/models-gated#gated-models).
 
 <br>
 

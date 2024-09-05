@@ -291,6 +291,7 @@ def run_drag(source_image,
     t = model.scheduler.timesteps[args.n_inference_step - args.n_actual_inference_step]
 
     _, args.pad_idx = get_pad_tokens(model.tokenizer, args.prompt)
+    print(prompt, args.pad_idx)
     
     # feature shape: [1280,16,16], [1280,32,32], [640,64,64], [320,64,64]
     # convert dtype to float for optimization

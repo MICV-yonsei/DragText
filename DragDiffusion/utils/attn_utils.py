@@ -235,4 +235,4 @@ def get_pad_tokens(tokenizer, prompt):
             pad_tokens[idx] = token
 
     pad_idx = list(pad_tokens.keys())
-    return pad_tokens, pad_idx
+    return pad_tokens, pad_idx[0]
