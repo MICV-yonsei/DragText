@@ -61,9 +61,11 @@ def create_base_model_config_ui():
             local_models_choice = \
                 [os.path.join(local_models_dir, d) for d in os.listdir(local_models_dir) if
                  os.path.isdir(os.path.join(local_models_dir, d))]
-            model_path = gr.Dropdown(value="runwayml/stable-diffusion-v1-5",
+            model_path = gr.Dropdown(value="benjamin-paine/stable-diffusion-v1-5",
                                      label="Diffusion Model Path",
-                                     choices=[
+                                     choices=[   "Lykon/dreamshaper-8",
+                                                 "benjamin-paine/stable-diffusion-v1-5"
+                                                 "CompVis/stable-diffusion-v1-4",
                                                  "runwayml/stable-diffusion-v1-5",
                                                  "stabilityai/stable-diffusion-2-1-base",
                                                  "stabilityai/stable-diffusion-xl-base-1.0",

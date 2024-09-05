@@ -40,7 +40,7 @@ from pytorch_lightning import seed_everything
 
 from .drag_utils import drag_diffusion_update, drag_diffusion_update_gen
 from .lora_utils import train_lora
-from .attn_utils import register_attention_editor_diffusers, MutualSelfAttentionControl
+from .attn_utils import register_attention_editor_diffusers, MutualSelfAttentionControl, get_pad_tokens
 from .freeu_utils import register_free_upblock2d, register_free_crossattn_upblock2d
 
 
@@ -290,6 +290,8 @@ def run_drag(source_image,
     model.scheduler.set_timesteps(args.n_inference_step)
     t = model.scheduler.timesteps[args.n_inference_step - args.n_actual_inference_step]
 
+    _, args.pad_idx = get_pad_tokens(model.tokenizer, args.prompt)
+    
     # feature shape: [1280,16,16], [1280,32,32], [640,64,64], [320,64,64]
     # convert dtype to float for optimization
     init_code = init_code.float()

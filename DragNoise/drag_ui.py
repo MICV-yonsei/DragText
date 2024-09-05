@@ -71,7 +71,7 @@ with gr.Blocks(title='DragNoise', theme=gr.themes.Monochrome()) as demo:
                 local_models_dir = '/media/haofeng/w/AIGC/DragDiffusion/local_pretrained_models'
                 local_models_choice = \
                     [os.path.join(local_models_dir,d) for d in os.listdir(local_models_dir) if os.path.isdir(os.path.join(local_models_dir,d))]
-                model_path = gr.Dropdown(value="CompVis/stable-diffusion-v1-4",
+                model_path = gr.Dropdown(value="benjamin-paine/stable-diffusion-v1-5",
                     label="Diffusion Model Path",
                     choices=[
                         "Lykon/dreamshaper-8",

@@ -228,3 +228,17 @@ def register_attention_editor_diffusers(model, editor: AttentionBase, attn_proce
         elif "up" in net_name:
             cross_att_count += register_editor(net, 0, "up")
     editor.num_att_layers = cross_att_count
+
+def get_pad_tokens(tokenizer, prompt):
+    text_inputs = tokenizer(prompt, return_tensors='pt', padding='max_length', max_length=77)
+    tokens = tokenizer.convert_ids_to_tokens(text_inputs.input_ids[0])
+
+    pad_tokens = {}
+    for idx, token in enumerate(tokens):
+        if idx == 76:
+            continue
+        if token == tokenizer.eos_token:
+            pad_tokens[idx] = token
+
+    pad_idx = list(pad_tokens.keys())
+    return pad_tokens, pad_idx

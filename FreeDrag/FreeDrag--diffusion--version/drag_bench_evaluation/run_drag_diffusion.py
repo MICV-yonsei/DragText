@@ -42,7 +42,7 @@ sys.path.insert(0, '../')
 from drag_pipeline import DragPipeline
 
 from utils.freedrag_utils import freedrag_update
-from utils.attn_utils import register_attention_editor_diffusers, MutualSelfAttentionControl
+from utils.attn_utils import register_attention_editor_diffusers, MutualSelfAttentionControl, get_pad_tokens
 
 
 def preprocess_image(image,
@@ -164,6 +164,8 @@ def run_drag(source_image,
     model.scheduler.set_timesteps(args.n_inference_step)
     t = model.scheduler.timesteps[args.n_inference_step - args.n_actual_inference_step]
 
+    _, args.pad_idx = get_pad_tokens(model.tokenizer, args.prompt)
+    
     # feature shape: [1280,16,16], [1280,32,32], [640,64,64], [320,64,64]
     # update according to the given supervision
     updated_init_code, text_embeddings, target_embeddings = freedrag_update(model, init_code, t, 

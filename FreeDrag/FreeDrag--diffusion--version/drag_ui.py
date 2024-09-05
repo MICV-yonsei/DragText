@@ -78,9 +78,12 @@ with gr.Blocks() as demo:
                 local_models_dir = '/mnt/petrelfs/lingpengyang/DragDiffusion/local_pretrained_models'
                 local_models_choice = \
                     [os.path.join(local_models_dir,d) for d in os.listdir(local_models_dir) if os.path.isdir(os.path.join(local_models_dir,d))]
-                model_path = gr.Dropdown(value="runwayml/stable-diffusion-v1-5",
+                model_path = gr.Dropdown(value="benjamin-paine/stable-diffusion-v1-5",
                     label="Diffusion Model Path",
                     choices=[
+                        "Lykon/dreamshaper-8",
+                        "benjamin-paine/stable-diffusion-v1-5"
+                        "CompVis/stable-diffusion-v1-4",
                         "runwayml/stable-diffusion-v1-5",
                     ] + local_models_choice
                 )

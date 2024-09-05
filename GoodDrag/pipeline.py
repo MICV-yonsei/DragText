@@ -30,7 +30,7 @@ from diffusers import DDIMScheduler, AutoencoderKL
 from pytorch_lightning import seed_everything
 from accelerate import Accelerator
 
-
+from utils.attn_utils import get_pad_tokens
 # from  diffusers.models.attention_processor import LoRAAttnProcessor2_0
 
 
@@ -232,7 +232,7 @@ class GoodDragger:
                  vae_path: str = "default", lora_path: str = '', seed: int = 42,
                  max_drag_per_track: int = 10, drag_loss_threshold: float = 4.0, once_drag: bool = False,
                  max_track_no_change: int = 10,
-                 optimize_text: bool = False, text_lr: float = 0.002):
+                 optimize_text: bool = False, text_lr: float = 0.002, text_mask: bool = False, text_lam: float = 0.1):
         self.device = device
         self.vae_path = vae_path
         self.lora_path = lora_path
@@ -295,8 +295,11 @@ class GoodDragger:
         self.no_change_track_num = 0
         self.max_no_change_track_num = max_track_no_change
 
-        self.optimize_text = optimize_text
         self.text_lr = text_lr
+        self.optimize_text = optimize_text
+        self.text_mask = text_mask
+        self.text_lam = text_lam
+        _, self.pad_idx = get_pad_tokens(self.model.tokenizer, self.prompt)
 
     def set_lora(self):
         if self.lora_path == "":
@@ -485,9 +488,10 @@ class GoodDragger:
         unet_output, F1 = self.forward_unet_features(input_latents, t, encoder_hidden_states=text_embeddings)
         return unet_output, F1
 
-    def cal_motion_supervision_loss(self, handle_points, target_points, F1, x_prev_updated, original_prev,
+    def cal_motion_supervision_loss(self, handle_points, target_points, F1, x_prev_updated, original_prev, f1, f0,
                                     interp_mask, original_features, original_points, alpha=None):
         drag_loss = 0.0
+        loss_text = 0.0
         for i_ in range(len(handle_points)):
             pi, ti = handle_points[i_], target_points[i_]
             norm_dis = (ti - pi).norm()
@@ -500,16 +504,18 @@ class GoodDragger:
             pi = original_points[i_]
             f0_patch = original_features[:, :, int(pi[0]) - self.r_1:int(pi[0]) + self.r_1 + 1,
                        int(pi[1]) - self.r_1:int(pi[1]) + self.r_1 + 1].detach()
-
+            f0_patch_ = f0[:, :, int(pi[0]) - self.r_1:int(pi[0]) + self.r_1 + 1,
+                       int(pi[1]) - self.r_1:int(pi[1]) + self.r_1 + 1].detach()
             pi = handle_points[i_]
             f1_patch = interpolate_feature_patch(F1, pi[0] + di[0], pi[1] + di[1], self.r_1)
+            f1_patch_ = interpolate_feature_patch(f1, pi[0] + di[0], pi[1] + di[1], self.r_1)
             drag_loss += ((2 * self.r_1) ** 2) * F.l1_loss(f0_patch, f1_patch)
-
+            loss_text += ((2 * self.r_1) ** 2) * F.l1_loss(f0_patch_, f1_patch_)
         print(f'Loss from drag: {drag_loss}')
         loss = drag_loss + self.lam * ((x_prev_updated - original_prev)
                                        * (1.0 - interp_mask)).abs().sum()
         print('Loss total=%f' % loss)
-        return loss, drag_loss
+        return loss, loss_text, drag_loss
 
     def track_step(self, original_feature, original_feature_, F1, F1_, handle_points, handle_points_init):
         if self.compare_mode:
@@ -548,11 +554,10 @@ class GoodDragger:
             text_optimizer = torch.optim.Adam([target_embeddings], lr=self.text_lr)
             drag_latents, target_embeddings, self.model.unet, optimizer, text_optimizer \
                 = accelerator.prepare(drag_latents, target_embeddings, self.model.unet, optimizer, text_optimizer)
-            f0, f1_prev = features[t.item()].cuda().clone(), features[t.item()].cuda().clone()
         else:
             target_embeddings = text_embeddings            
             drag_latents, self.model.unet, optimizer = accelerator.prepare(drag_latents, self.model.unet, optimizer)
-    
+        f0 = features[t.item()].cuda().clone()
         while track_num < self.track_per_denoise:
             optimizer.zero_grad()
             if self.optimize_text:
@@ -591,18 +596,14 @@ class GoodDragger:
                 del _
             torch.cuda.empty_cache()
 
-            loss, drag_loss = self.cal_motion_supervision_loss(handle_points, target_points, F1, x_prev_updated,
-                                                               original_step_output[t.item()].cuda(), interp_mask,
+            loss, loss_text, drag_loss = self.cal_motion_supervision_loss(handle_points, target_points, F1, x_prev_updated,
+                                                               original_step_output[t.item()].cuda(), f1, f0, interp_mask,
                                                                original_features=features[t.item()].cuda(),
                                                                original_points=handle_points_init)
             if self.optimize_text:
-                w = track_num / self.track_per_denoise
-                # loss_text = F.mse_loss(f1_prev, f1) # initial approach
-                # loss_text = (1-w)*F.mse_loss(f0, f1) + w*F.mse_loss(f1_prev, f1) # weighted loss approach
-                loss_text = w*F.mse_loss(f0, f1) + (1-w)*F.mse_loss(f1_prev, f1)
-                print('[%d/%d] loss text=%f'%(track_num, self.track_per_denoise, loss_text.item()))
+                if self.text_mask:
+                    loss_text += self.text_lam * (text_embeddings[:,:self.pad_idx,:]-target_embeddings[:,:self.pad_idx,:]).abs().sum()
 
-            if self.optimize_text:
                 accelerator.backward(loss, retain_graph=True)
                 optimizer.step()
 
