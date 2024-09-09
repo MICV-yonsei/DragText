@@ -79,6 +79,7 @@ conda activate freedragdif
 ```
 
 ### DragNoise Environment:
+This environment is the same as DragDiffusion. Thus you can use the environment of DragDiffusion, instead.
 ```bash
 cd ./DragNoise
 conda env create -f environment.yaml
@@ -86,10 +87,12 @@ conda activate dragnoise
 ```
 
 ### GoodDrag Environment:
+Need Python 3.9 or higher.
 ```bash
 cd ./GoodDrag
-conda env create -f environment.yaml
-conda activate GoodDrag
+conda create -n gooddrag python==3.9
+conda activate gooddrag
+pip install -r requirements.txt
 ```
 
 ### Stable Diffusion 1.5
@@ -186,7 +189,7 @@ python run_drag_diffusion.py --optimize_text --text_lr 0.004 --text_mask --text_
 ```
 
 ### Step 4. Evaluate LPIPS, CLIP Similiarity, and Mean Distance (MD) 
-Please note that executing the evaluation code for Mean Distance requires around 40GB GPU memory.
+Please note that executing the evaluation code for Mean Distance requires around 40GB GPU memory. And we recommend to run evaluation codes with the `dragdiff` environment.
 ```bash
 # LPIPS and CLIP similiarity
 python run_eval_similarity.py
