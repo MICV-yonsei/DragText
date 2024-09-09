@@ -64,7 +64,7 @@ def create_base_model_config_ui():
             model_path = gr.Dropdown(value="benjamin-paine/stable-diffusion-v1-5",
                                      label="Diffusion Model Path",
                                      choices=[   "Lykon/dreamshaper-8",
-                                                 "benjamin-paine/stable-diffusion-v1-5"
+                                                 "benjamin-paine/stable-diffusion-v1-5",
                                                  "CompVis/stable-diffusion-v1-4",
                                                  "runwayml/stable-diffusion-v1-5",
                                                  "stabilityai/stable-diffusion-2-1-base",
