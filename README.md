@@ -18,10 +18,9 @@
   <div align="center">
     <img src="https://github.com/user-attachments/assets/f7570432-443a-4965-923d-1e4acca0e106" width="700">
   </div>
-  <!--Place holder for demo video--->
-  <!-- <div align="center">
-    <img src="", width="700">
-  </div> -->
+  <div align="center">
+    <img src="https://github.com/user-attachments/assets/be42e3f8-e321-449e-89e9-ff87858f57d4", width="700">
+  </div>
   <br>
 </p>
 
